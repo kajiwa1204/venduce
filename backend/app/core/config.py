@@ -23,6 +23,18 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 14
     REFRESH_TOKEN_EXPIRE_DAYS_REMEMBER: int = 60
 
+    # Storage settings
+    STORAGE_DRIVER: str = "local"  # 'local' or 's3'
+    LOCAL_STORAGE_PATH: str = "./data/uploads"  # runtime path for local files
+    S3_BUCKET: str | None = None
+    S3_REGION: str | None = None
+    S3_ENDPOINT_URL: str | None = None
+    AWS_ACCESS_KEY_ID: str | None = None
+    AWS_SECRET_ACCESS_KEY: str | None = None
+    ASSET_URL_TTL_SECONDS: int = 3600
+    MAX_UPLOAD_SIZE_BYTES: int = 5 * 1024 * 1024
+    ALLOWED_IMAGE_MIME_TYPES: str = "image/jpeg,image/png,image/gif,image/webp"
+
     model_config = ConfigDict(env_prefix="")
 
 
