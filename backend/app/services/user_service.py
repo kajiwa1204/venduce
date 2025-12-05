@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.core.security import hash_password, verify_password, pwd_context
 from app.models.user import User
 from app.models.refresh_token import RefreshToken
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 from app.utils.timezone import now_utc
 import secrets
 
@@ -96,6 +96,30 @@ class UserService:
         db.commit()
         db.refresh(user)
         return token
+
+    def update_user_profile(self, db: Session, user: User, user_update: UserUpdate) -> User:
+        """
+        Update user profile information.
+        Only provided fields are updated (others remain unchanged).
+        """
+        update_data = user_update.model_dump(exclude_unset=True)
+        
+        # Check if username is being updated and is unique
+        if "username" in update_data:
+            existing = db.query(User).filter(
+                (User.username == update_data["username"]) & (User.id != user.id)
+            ).first()
+            if existing:
+                raise UserAlreadyExists("username already exists")
+        
+        # Update only provided fields
+        for field, value in update_data.items():
+            setattr(user, field, value)
+        
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
 
     def authenticate_user(self, db: Session, email: str, password: str):
         """Verify user credentials. Returns the user on success, otherwise None.

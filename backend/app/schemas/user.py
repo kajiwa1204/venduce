@@ -26,6 +26,15 @@ class UserRead(AppModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class UserUpdate(AppModel):
+    """Schema for updating user profile information."""
+    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    username: Optional[str] = Field(None, min_length=6, max_length=32)
+
+    model_config = ConfigDict()
+
+
 class RegistrationResponse(AppModel):
     """Response for user registration endpoint."""
     message: str
