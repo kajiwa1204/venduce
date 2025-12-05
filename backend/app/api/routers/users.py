@@ -8,6 +8,7 @@ from app.db.database import get_db
 
 router = APIRouter()
 
+
 @router.get("/me", response_model=UserRead)
 def read_user_me(
     current_user: User = Depends(get_current_user),
@@ -27,12 +28,12 @@ def update_user_me(
 ) -> User:
     """
     認証済みユーザーが自身のプロフィール情報を更新します。
-    
+
     更新可能なフィールド:
     - first_name: 名前
     - last_name: 苗字
     - username: ユーザー名（他のユーザーと重複していないこと）
-    
+
     メールアドレスとパスワードは別エンドポイントで変更します。
     """
     try:
@@ -43,4 +44,3 @@ def update_user_me(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e),
         )
-
