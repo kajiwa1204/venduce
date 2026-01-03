@@ -16,5 +16,8 @@ class ProductStatus(str, Enum):
     published = "published"
     archived = "archived"
 
+class あいうえお(str, Enum):
+    かきくけこ = "かきくけこ"
+    さしすせそ = "さしすせそ"
 
 __all__ = ["AssetPurpose", "ProductStatus"]
