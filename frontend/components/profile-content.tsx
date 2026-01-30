@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useProfileEdit } from '@/features/profile/hooks/useProfileEdit';
-import { calcTotalLikes, calcTotalPurchases } from '@/features/profile/utils';
-import { useRouter } from 'next/navigation';
-import { Grid3x3, LogOut } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usersApi } from '@/lib/api/users';
-import { postsApi } from '@/lib/api/posts';
-import { ApiError } from '@/lib/api/client';
-import { Post, UserProfile } from '@/types/api';
-import { getImageUrl } from '@/lib/utils';
-import { useAuthStore } from '@/stores/auth';
+import { useState, useEffect } from "react";
+import { useProfileEdit } from "@/features/profile/hooks/useProfileEdit";
+import { calcTotalLikes, calcTotalPurchases } from "@/features/profile/utils";
+import { useRouter } from "next/navigation";
+import { Grid3x3, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usersApi } from "@/lib/api/users";
+import { postsApi } from "@/lib/api/posts";
+import { ApiError } from "@/lib/api/client";
+import { Post, UserProfile } from "@/types/api";
+import { getImageUrl } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth";
 
 export function ProfileContent() {
   const router = useRouter();
@@ -23,8 +23,10 @@ export function ProfileContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(null);
-  const [editUsername, setEditUsername] = useState('');
+  const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(
+    null,
+  );
+  const [editUsername, setEditUsername] = useState("");
 
   const {
     form,
@@ -34,30 +36,38 @@ export function ProfileContent() {
     handleSubmit,
     setForm,
   } = useProfileEdit({
-    first_name: '',
-    last_name: '',
-    bio: '',
+    first_name: "",
+    last_name: "",
+    bio: "",
     avatar: undefined,
   });
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [user, postList] = await Promise.all([usersApi.getProfile(), postsApi.getPosts()]);
+        const [user, postList] = await Promise.all([
+          usersApi.getProfile(),
+          postsApi.getPosts(),
+        ]);
         const mappedUser = {
           ...user,
-          avatar_url: (user as any).avatar_asset?.public_url ?? user.avatar_url ?? null,
+          avatar_url:
+            (user as any).avatar_asset?.public_url ?? user.avatar_url ?? null,
         };
         setProfile(mappedUser);
         setPosts(postList.filter((post) => post.user_id === mappedUser.id));
         setError(null);
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
-        console.error('Failed to load profile', err);
-        setError(err instanceof Error ? err.message : 'プロフィール情報を取得できませんでした');
+        console.error("Failed to load profile", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "プロフィール情報を取得できませんでした",
+        );
       } finally {
         setLoading(false);
       }
@@ -68,35 +78,44 @@ export function ProfileContent() {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    router.push("/login");
     router.refresh();
   };
 
-  if (loading) return <div className="p-8 text-center">プロフィールを読み込み中です...</div>;
+  if (loading)
+    return (
+      <div className="p-8 text-center">プロフィールを読み込み中です...</div>
+    );
   if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
-  if (!profile) return <div className="p-8 text-center">プロフィール情報が見つかりません。</div>;
+  if (!profile)
+    return (
+      <div className="p-8 text-center">プロフィール情報が見つかりません。</div>
+    );
 
-  const fullName = `${profile.last_name ?? ''} ${profile.first_name ?? ''}`.trim() || profile.username;
+  const fullName =
+    `${profile.last_name ?? ""} ${profile.first_name ?? ""}`.trim() ||
+    profile.username;
   const postCount = posts.length;
   const totalLikes = calcTotalLikes(posts);
   const totalPurchases = calcTotalPurchases(posts);
 
   const handleEditClick = () => {
     setForm({
-      first_name: profile.first_name ?? '',
-      last_name: profile.last_name ?? '',
-      bio: profile.bio ?? '',
+      first_name: profile.first_name ?? "",
+      last_name: profile.last_name ?? "",
+      bio: profile.bio ?? "",
       avatar: undefined,
     });
-    setEditUsername(profile.username ?? '');
-    setEditAvatarPreview(profile.avatar_url ? getImageUrl(profile.avatar_url) : null);
+    setEditUsername(profile.username ?? "");
+    setEditAvatarPreview(
+      profile.avatar_url ? getImageUrl(profile.avatar_url) : null,
+    );
     setEditing(true);
   };
 
   const handleCancel = () => {
     setEditing(false);
   };
-
 
   return (
     <div className="mx-auto max-w-4xl pb-20">
@@ -119,8 +138,15 @@ export function ProfileContent() {
                 <div className="flex items-center gap-4">
                   <div>
                     <Avatar className="h-20 w-20">
-                      <AvatarImage src={editAvatarPreview ?? getImageUrl(profile.avatar_url ?? undefined)} />
-                      <AvatarFallback>{editUsername[0] || profile.username[0]}</AvatarFallback>
+                      <AvatarImage
+                        src={
+                          editAvatarPreview ??
+                          getImageUrl(profile.avatar_url ?? undefined)
+                        }
+                      />
+                      <AvatarFallback>
+                        {editUsername[0] || profile.username[0]}
+                      </AvatarFallback>
                     </Avatar>
                   </div>
                   <div>
@@ -128,19 +154,26 @@ export function ProfileContent() {
                       type="file"
                       accept="image/*"
                       disabled={saving}
-                      onChange={e => {
+                      onChange={(e) => {
                         const file = e.target.files?.[0] || undefined;
-                        handleChange('avatar', file);
+                        handleChange("avatar", file);
                         if (file) {
                           const reader = new FileReader();
-                          reader.onload = ev => setEditAvatarPreview(ev.target?.result as string);
+                          reader.onload = (ev) =>
+                            setEditAvatarPreview(ev.target?.result as string);
                           reader.readAsDataURL(file);
                         } else {
-                          setEditAvatarPreview(profile.avatar_url ? getImageUrl(profile.avatar_url) : null);
+                          setEditAvatarPreview(
+                            profile.avatar_url
+                              ? getImageUrl(profile.avatar_url)
+                              : null,
+                          );
                         }
                       }}
                     />
-                    <div className="text-xs text-muted-foreground mt-1">画像は5MB以内・正方形推奨</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      画像は5MB以内・正方形推奨
+                    </div>
                   </div>
                 </div>
 
@@ -150,7 +183,7 @@ export function ProfileContent() {
                     className="w-full rounded border p-2 text-sm"
                     type="text"
                     value={editUsername}
-                    onChange={e => setEditUsername(e.target.value)}
+                    onChange={(e) => setEditUsername(e.target.value)}
                     placeholder="ユーザー名"
                     maxLength={32}
                     disabled={saving}
@@ -159,7 +192,7 @@ export function ProfileContent() {
                     className="w-full rounded border p-2 text-sm"
                     type="text"
                     value={form.last_name}
-                    onChange={e => handleChange('last_name', e.target.value)}
+                    onChange={(e) => handleChange("last_name", e.target.value)}
                     placeholder="姓"
                     maxLength={100}
                     disabled={saving}
@@ -168,7 +201,7 @@ export function ProfileContent() {
                     className="w-full rounded border p-2 text-sm"
                     type="text"
                     value={form.first_name}
-                    onChange={e => handleChange('first_name', e.target.value)}
+                    onChange={(e) => handleChange("first_name", e.target.value)}
                     placeholder="名"
                     maxLength={100}
                     disabled={saving}
@@ -181,21 +214,55 @@ export function ProfileContent() {
                   rows={4}
                   maxLength={1000}
                   value={form.bio}
-                  onChange={(e) => handleChange('bio', e.target.value)}
+                  onChange={(e) => handleChange("bio", e.target.value)}
                   placeholder="自己紹介文を入力してください (1000文字以内)"
                   disabled={saving}
                 />
-                {editError && <div className="mt-1 text-xs text-red-500">{editError}</div>}
+                {editError && (
+                  <div className="mt-1 text-xs text-red-500">{editError}</div>
+                )}
                 <div className="mt-2 flex gap-2">
-                  <Button onClick={async () => { const ok = await handleSubmit(); if (ok) setEditing(false); }} disabled={saving} className="flex-1 md:flex-none">{saving ? '保存中...' : '保存'}</Button>
-                  <Button onClick={handleCancel} variant="secondary" disabled={saving} className="flex-1 md:flex-none">キャンセル</Button>
+                  <Button
+                    onClick={async () => {
+                      const updatedUser = await handleSubmit();
+                      if (updatedUser) {
+                        setProfile({
+                          ...profile,
+                          first_name: updatedUser.first_name,
+                          last_name: updatedUser.last_name,
+                          bio: updatedUser.bio,
+                          avatar_url: updatedUser.avatar_url ?? null,
+                        });
+                        setEditing(false);
+                      }
+                    }}
+                    disabled={saving}
+                    className="flex-1 md:flex-none"
+                  >
+                    {saving ? "保存中..." : "保存"}
+                  </Button>
+                  <Button
+                    onClick={handleCancel}
+                    variant="secondary"
+                    disabled={saving}
+                    className="flex-1 md:flex-none"
+                  >
+                    キャンセル
+                  </Button>
                 </div>
               </div>
             ) : (
               <>
-                <p className="mt-4 text-sm leading-relaxed">{profile.bio ?? '自己紹介文がまだ登録されていません。'}</p>
+                <p className="mt-4 text-sm leading-relaxed">
+                  {profile.bio ?? "自己紹介文がまだ登録されていません。"}
+                </p>
                 <div className="mt-6 flex gap-2">
-                  <Button className="flex-1 md:flex-none" onClick={handleEditClick}>プロフィールを編集</Button>
+                  <Button
+                    className="flex-1 md:flex-none"
+                    onClick={handleEditClick}
+                  >
+                    プロフィールを編集
+                  </Button>
                 </div>
               </>
             )}
@@ -206,11 +273,15 @@ export function ProfileContent() {
                 <p className="text-xs text-muted-foreground">投稿</p>
               </div>
               <div>
-                <p className="font-semibold text-lg">{totalLikes.toLocaleString()}</p>
+                <p className="font-semibold text-lg">
+                  {totalLikes.toLocaleString()}
+                </p>
                 <p className="text-xs text-muted-foreground">累計いいね</p>
               </div>
               <div>
-                <p className="font-semibold text-lg">{totalPurchases.toLocaleString()}</p>
+                <p className="font-semibold text-lg">
+                  {totalPurchases.toLocaleString()}
+                </p>
                 <p className="text-xs text-muted-foreground">推定購入</p>
               </div>
             </div>
@@ -220,19 +291,32 @@ export function ProfileContent() {
 
       <Tabs defaultValue="posts" className="w-full">
         <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent p-0">
-          <TabsTrigger value="posts" className="flex-1 gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+          <TabsTrigger
+            value="posts"
+            className="flex-1 gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+          >
             <Grid3x3 className="h-4 w-4" /> <span>投稿</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="posts" className="mt-0">
           {posts.length === 0 ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">まだ投稿がありません。</div>
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              まだ投稿がありません。
+            </div>
           ) : (
             <div className="grid grid-cols-3 gap-1">
               {posts.map((post) => (
                 <div key={post.id} className="relative aspect-square bg-muted">
-                  <img src={getImageUrl(post.assets?.[0]?.public_url ?? post.images?.[0]?.public_url ?? post.assets?.[0]?.id)} className="h-full w-full object-cover" alt="ユーザー投稿" />
+                  <img
+                    src={getImageUrl(
+                      post.assets?.[0]?.public_url ??
+                        post.images?.[0]?.public_url ??
+                        post.assets?.[0]?.id,
+                    )}
+                    className="h-full w-full object-cover"
+                    alt="ユーザー投稿"
+                  />
                 </div>
               ))}
             </div>
