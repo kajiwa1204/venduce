@@ -41,12 +41,22 @@ class AssetProductPair(AppModel):
 
 class PostCreate(PostBase):
     asset_product_pairs: List[AssetProductPair] = Field(
-        default_factory=list,
+        ...,
+        min_length=1,
         max_length=10,
-        description="List of asset-product pairs (each asset is linked to at most one product)"
+        description="Required: at least one asset must be provided. Each asset can be linked to at most one product"
     )
     product_ids: List[str] = Field(default_factory=list, description="Legacy: product IDs not tied to specific images")
     tags: List[str] = Field(default_factory=list, max_length=10, description="List of tag names")
+
+
+class PostUpdate(PostBase):
+    caption: Optional[str] = None
+    status: Optional[PostStatus] = None
+    extra_metadata: Optional[dict] = None
+    asset_ids: Optional[List[str]] = None
+    product_ids: Optional[List[str]] = None
+    tags: Optional[List[str]] = Field(default=None, max_length=10, description="List of tag names")
 
 
 class PostRead(PostBase):
