@@ -15,7 +15,7 @@ import { getImageUrl } from "@/lib/utils";
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, hasHydrated } = useAuthStore();
   const [profile, setProfile] = useState<{
     username: string;
     avatar_url?: string | null;
@@ -24,7 +24,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && hasHydrated) {
       const loadProfile = async () => {
         try {
           setLoading(true);
@@ -41,7 +41,7 @@ export function Header() {
       };
       loadProfile();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, hasHydrated]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

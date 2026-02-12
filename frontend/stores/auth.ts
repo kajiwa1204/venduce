@@ -173,14 +173,22 @@ export const useAuthStore = create<AuthState>()(
 
       initializeFromToken: async () => {
         try {
-          const state = get();
-        
-          if (state.user && state.accessToken) {
+          const token = getCookie("access_token");
+          
+          if (!token) {
+            // クッキーにトークンが無い場合はログアウト状態に
+            set({
+              user: null,
+              isAuthenticated: false,
+              accessToken: null,
+              refreshToken: null,
+              refreshTokenExpiresAt: null,
+            });
             return;
           }
 
-          const token = getCookie("access_token");
-          if (token) {
+          // トークンが存在する場合のみ API 呼び出し
+          try {
             const user = await client.get<User>("/api/users/me");
             const refreshToken = getCookie("refresh_token");
             set({
@@ -190,7 +198,13 @@ export const useAuthStore = create<AuthState>()(
               refreshToken: refreshToken,
               refreshTokenExpiresAt: refreshToken ? Date.now() + (7 * 24 * 60 * 60 * 1000) : null,
             });
-          } else {
+          } catch (apiErr) {
+            // トークンが無効な場合はクッキーをクリア
+            console.error('API call failed during initialization:', apiErr);
+            if (typeof window !== "undefined") {
+              deleteCookie("access_token", "/");
+              deleteCookie("refresh_token", "/");
+            }
             set({
               user: null,
               isAuthenticated: false,
