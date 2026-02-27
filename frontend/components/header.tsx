@@ -83,23 +83,23 @@ export function Header() {
               alt="Venduce Title"
               width={110}
               height={341}
-              className="rounded-lg"
+              className="rounded-lg h-auto w-28 sm:w-auto"
             />
           </Link>
 
           {/* デスクトップナビゲーション */}
-          <nav className="hidden md:flex items-center gap-6 flex-1 mx-8">
+          <nav className="hidden md:flex items-center gap-4 lg:gap-6 flex-1 mx-4 lg:mx-8">
             {isAuthenticated && (
               <>
                 <Link
                   href="/create"
-                  className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                  className="text-xs sm:text-sm font-medium text-foreground hover:text-primary transition-colors"
                 >
                   投稿する
                 </Link>
                 <Link
                   href="/purchases"
-                  className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                  className="text-xs sm:text-sm font-medium text-foreground hover:text-primary transition-colors"
                 >
                   購入履歴
                 </Link>
@@ -107,27 +107,27 @@ export function Header() {
             )}
             <Link
               href="/feed"
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              className="text-xs sm:text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
               投稿一覧
             </Link>
             <Link
               href="/products"
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              className="text-xs sm:text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
               商品一覧
             </Link>
           </nav>
 
           {/* デスクトップ検索・プロフィール */}
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="hidden sm:flex items-center">
               <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="商品や投稿を検索"
-                  className="pl-9 w-64"
+                  placeholder="検索"
+                  className="pl-9 w-40 sm:w-48 lg:w-64 transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -135,7 +135,7 @@ export function Header() {
             </div>
 
             {/* デスクトップ: プロフィール・設定 */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-2 lg:gap-4">
               {isAuthenticated ? (
                 <>
                   <Link
@@ -150,7 +150,7 @@ export function Header() {
                         {profile?.username?.[0] ?? "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden sm:inline text-sm font-medium text-foreground">
+                    <span className="hidden lg:inline text-sm font-medium text-foreground">
                       {profile?.username}
                     </span>
                   </Link>
@@ -163,7 +163,11 @@ export function Header() {
                 </>
               ) : (
                 <Link href="/login">
-                  <Button variant="default" size="sm">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="text-xs sm:text-sm"
+                  >
                     ログイン
                   </Button>
                 </Link>
@@ -174,104 +178,106 @@ export function Header() {
             <div className="md:hidden">
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
                     <Menu className="h-5 w-5" />
                     <span className="sr-only">メニュー</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px]">
-                  <SheetHeader>
+                <SheetContent side="right" className="w-2.5/4 p-0">
+                  <SheetHeader className="px-4 py-4 border-b">
                     <SheetTitle>メニュー</SheetTitle>
                   </SheetHeader>
 
-                  <div className="mt-6 space-y-4">
-                    {/* モバイル検索 */}
-                    <form onSubmit={handleSearch} className="mb-6">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="search"
-                          placeholder="検索"
-                          className="pl-9 w-full"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                      </div>
-                    </form>
-
-                    {/* プロフィール情報（認証時） */}
-                    {isAuthenticated && profile && (
-                      <div className="flex items-center gap-3 pb-4 border-b">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={getImageUrl(profile.avatar_url ?? undefined)}
+                  <div className="flex flex-col h-full overflow-hidden">
+                    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                      {/* モバイル検索 */}
+                      <form onSubmit={handleSearch}>
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            type="search"
+                            placeholder="検索"
+                            className="pl-9 w-full text-sm"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                           />
-                          <AvatarFallback>
-                            {profile.username?.[0] ?? "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {profile.username}
-                          </p>
-                          <Link
-                            href="/profile"
-                            className="text-xs text-primary hover:underline"
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            プロフィールを見る
-                          </Link>
                         </div>
-                      </div>
-                    )}
+                      </form>
 
-                    {/* メニュー項目 */}
-                    <nav className="space-y-2">
-                      {isAuthenticated && (
-                        <>
-                          <Link
-                            href="/create"
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="block px-4 py-2 rounded-lg hover:bg-muted transition text-sm font-medium"
-                          >
-                            投稿する
-                          </Link>
-                          <Link
-                            href="/purchases"
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="block px-4 py-2 rounded-lg hover:bg-muted transition text-sm font-medium"
-                          >
-                            購入履歴
-                          </Link>
-                        </>
+                      {/* プロフィール情報（認証時） */}
+                      {isAuthenticated && profile && (
+                        <div className="flex items-center gap-3 pb-4 border-b">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage
+                              src={getImageUrl(profile.avatar_url ?? undefined)}
+                            />
+                            <AvatarFallback>
+                              {profile.username?.[0] ?? "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {profile.username}
+                            </p>
+                            <Link
+                              href="/profile"
+                              className="text-xs text-primary hover:underline"
+                              onClick={() => setMobileMenuOpen(false)}
+                            >
+                              プロフィールを見る
+                            </Link>
+                          </div>
+                        </div>
                       )}
-                      {navItems.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-4 py-2 rounded-lg hover:bg-muted transition text-sm font-medium"
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </nav>
 
-                    {/* 設定・ログアウト */}
-                    <div className="pt-4 border-t space-y-2">
+                      {/* メニュー項目 */}
+                      <nav className="space-y-1">
+                        {isAuthenticated && (
+                          <>
+                            <Link
+                              href="/create"
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block px-4 py-2.5 rounded-lg hover:bg-muted transition text-sm font-medium"
+                            >
+                              投稿する
+                            </Link>
+                            <Link
+                              href="/purchases"
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block px-4 py-2.5 rounded-lg hover:bg-muted transition text-sm font-medium"
+                            >
+                              購入履歴
+                            </Link>
+                          </>
+                        )}
+                        {navItems.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-4 py-2.5 rounded-lg hover:bg-muted transition text-sm font-medium"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </nav>
+                    </div>
+
+                    {/* 設定・ログアウト（下部固定） */}
+                    <div className="border-t space-y-2 px-4 py-4">
                       {isAuthenticated ? (
                         <>
                           <Link
                             href="/settings"
                             onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-muted transition text-sm font-medium"
+                            className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-muted transition text-sm font-medium"
                           >
                             <Settings className="h-4 w-4" />
                             設定
                           </Link>
                           <button
                             onClick={handleLogout}
-                            className="w-full text-left px-4 py-2 rounded-lg hover:bg-destructive/10 transition text-sm font-medium text-destructive"
+                            className="w-full text-left px-4 py-2.5 rounded-lg hover:bg-destructive/10 transition text-sm font-medium text-destructive"
                           >
                             ログアウト
                           </button>
@@ -282,7 +288,7 @@ export function Header() {
                           onClick={() => setMobileMenuOpen(false)}
                           className="block w-full"
                         >
-                          <Button className="w-full">ログイン</Button>
+                          <Button className="w-full text-sm">ログイン</Button>
                         </Link>
                       )}
                     </div>
