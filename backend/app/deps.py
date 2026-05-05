@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -18,6 +18,7 @@ from app.services.like_service import LikeService
 from app.services.follow_service import FollowService
 from app.services.badge_service import BadgeService
 from app.services.notification_service import NotificationService
+from app.core.config import settings
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token", auto_error=False)
@@ -122,6 +123,11 @@ def get_current_user_optional(
 
     user = db.execute(select(User).where(User.id == user_id)).scalars().first()
     return user
+
+
+def verify_internal_key(x_internal_key: Optional[str] = Header(None)) -> None:
+    if not settings.INTERNAL_API_KEY or x_internal_key != settings.INTERNAL_API_KEY:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid internal API key")
 
 
 def get_admin_user(

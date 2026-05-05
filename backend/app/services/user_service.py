@@ -166,7 +166,7 @@ class UserService:
         db: Session, 
         refresh_token_str: str,
         create_new_refresh_token_fn,
-    ) -> str:
+    ) -> tuple[str, datetime]:
         """
         リフレッシュトークンをローテーションします（古いトークンを無効化し、新しいトークンを生成）。
         
@@ -178,11 +178,11 @@ class UserService:
             db: データベースセッション
             refresh_token_str: クライアントが提供したJWTリフレッシュトークン
             create_new_refresh_token_fn: 新しいリフレッシュトークンを生成する関数
-                                        (ttl_days) -> (token_str, expires_at)
-        
+                                        (ttl_days: int) -> (token_str: str, expires_at: datetime)
+
         戻り値:
-            新しいリフレッシュトークン文字列
-        
+            (新しいリフレッシュトークン文字列, 有効期限)
+
         例外:
             RefreshTokenError: トークンが無効、期限切れ、または見つからない場合
         """

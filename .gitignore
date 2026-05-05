@@ -60,8 +60,6 @@ backend/keys/
 # Database
 postgres_data/
 
-# Docker
-.dockerignore
 
 # OS
 .DS_Store

@@ -192,51 +192,43 @@ class TestPurchasesListHistory:
     
     def test_list_purchases_empty(self, client, auth_headers, setup_purchase_data):
         """購入がない場合、空リストを返す。"""
-        headers, buyer = auth_headers
-        
+        headers, _ = auth_headers
+
         response = client.get(
-            f"/api/purchases/{buyer.id}",
+            "/api/purchases/me",
             headers=headers,
         )
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["items"] == []
         assert data["meta"]["returned"] == 0
         assert data["meta"]["has_more"] is False
-    
+
     def test_list_purchases_multiple(self, client, db_session, auth_headers, setup_purchase_data):
         """複数の購入履歴を取得できることを確認。"""
         headers, buyer = auth_headers
         data = setup_purchase_data
-        
+
         p1 = PurchaseFactory(buyer_id=buyer.id, product_id=data["product"].id)
         p2 = PurchaseFactory(buyer_id=buyer.id, product_id=data["product"].id)
         db_session.add_all([p1, p2])
         db_session.commit()
-        
+
         response = client.get(
-            f"/api/purchases/{buyer.id}",
+            "/api/purchases/me",
             headers=headers,
         )
-        
+
         assert response.status_code == 200
         response_data = response.json()
         assert len(response_data["items"]) == 2
         assert response_data["meta"]["returned"] == 2
-    
-    def test_list_purchases_other_user_forbidden(self, client, auth_headers, setup_purchase_data):
-        """他のユーザーの購入履歴は 403 を返す。"""
-        headers, buyer = auth_headers
-        
-        other_user = UserFactory()
-        
-        response = client.get(
-            f"/api/purchases/{other_user.id}",
-            headers=headers,
-        )
-        
-        assert response.status_code == 403
+
+    def test_list_purchases_unauthenticated(self, client):
+        """/me エンドポイントは認証なしで 401 を返す。"""
+        response = client.get("/api/purchases/me")
+        assert response.status_code == 401
 
 
 class TestPurchasesPagination:
@@ -255,19 +247,19 @@ class TestPurchasesPagination:
         db_session.commit()
         
         response1 = client.get(
-            f"/api/purchases/{buyer.id}?limit=2",
+            "/api/purchases/me?limit=2",
             headers=headers,
         )
-        
+
         assert response1.status_code == 200
         data1 = response1.json()
         assert len(data1["items"]) == 2
         assert data1["meta"]["has_more"] is True
         assert data1["meta"]["next_cursor"] is not None
-        
+
         cursor = data1["meta"]["next_cursor"]
         response2 = client.get(
-            f"/api/purchases/{buyer.id}?cursor={cursor}&limit=2",
+            f"/api/purchases/me?cursor={cursor}&limit=2",
             headers=headers,
         )
         

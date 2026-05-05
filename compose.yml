@@ -31,6 +31,10 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      # 開発環境用の storage 永続化。
+      # 本番(compose.prod.yml 併用)では同一 target に対して後勝ちになる Docker Compose v2 の
+      # マージ挙動により、compose.prod.yml の NAS バインドマウントに置換される。
+      - backend_storage:/app/storage
     healthcheck:
       test: ['CMD-SHELL', 'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:8000/api/health'').read()"']
       interval: 15s
@@ -87,3 +91,4 @@ services:
 volumes:
   postgres_data:
   frontend_node_modules:
+  backend_storage:

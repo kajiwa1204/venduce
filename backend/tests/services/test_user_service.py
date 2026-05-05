@@ -261,7 +261,7 @@ def test_authenticate_and_issue_tokens_success(db_session):
         is_active=True,
     )
 
-    access_token, refresh_token, expires_in = user_service.authenticate_and_issue_tokens(
+    access_token, refresh_token, expires_in, refresh_expires_in = user_service.authenticate_and_issue_tokens(
         db_session,
         "tokenlogin@example.com",
         "password123",
@@ -271,6 +271,7 @@ def test_authenticate_and_issue_tokens_success(db_session):
     assert isinstance(access_token, str) and access_token
     assert isinstance(refresh_token, str) and refresh_token
     assert isinstance(expires_in, int) and expires_in > 0
+    assert isinstance(refresh_expires_in, int) and refresh_expires_in > 0
 
 
 def test_authenticate_and_issue_tokens_not_confirmed(db_session):
@@ -353,12 +354,12 @@ def test_rotate_refresh_token_success(db_session):
     refresh_token, expires_at = jwt_utils.create_refresh_token(subject=str(user.id))
     user_service.save_refresh_token(db_session, str(user.id), refresh_token, expires_at)
     
-    new_refresh_token = user_service.rotate_refresh_token(
+    new_refresh_token, new_expires_at = user_service.rotate_refresh_token(
         db_session,
         refresh_token,
         lambda ttl_days: jwt_utils.create_refresh_token(subject=str(user.id), ttl_days=ttl_days),
     )
-    
+
     assert new_refresh_token is not None
     assert isinstance(new_refresh_token, str)
     assert new_refresh_token != refresh_token
@@ -367,7 +368,7 @@ def test_rotate_refresh_token_success(db_session):
         RefreshToken.refresh_token == refresh_token
     ).first()
     assert old_record.revoked_at is not None
-    
+
     new_record = db_session.query(RefreshToken).filter(
         RefreshToken.refresh_token == new_refresh_token
     ).first()

@@ -1,6 +1,6 @@
 import asyncio
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 import os
 from fastapi.openapi.utils import get_openapi
@@ -25,6 +25,7 @@ from app.api.routers import ws as ws_router
 from app.api.routers import admin as admin_router
 from app.api.routers import notifications as notifications_router
 from app.core.config import settings
+from app.deps import verify_internal_key
 
 app = FastAPI(swagger_ui_parameters={"persistAuthorization": True})
 
@@ -84,7 +85,7 @@ def get_application() -> FastAPI:
         return {"status": "ok"}
 
     @app.post("/api/internal/ws-notify-badge", include_in_schema=False)
-    async def ws_notify_badge(payload: dict):
+    async def ws_notify_badge(payload: dict, _: None = Depends(verify_internal_key)):
         """内部用: スクリプトからWebSocket badge_awarded 通知を発火する。"""
         from app.core.ws_manager import ws_manager
         user_id = payload.get("user_id")
@@ -98,7 +99,7 @@ def get_application() -> FastAPI:
         return {"ok": True}
 
     @app.post("/api/internal/ws-notify-ranking", include_in_schema=False)
-    async def ws_notify_ranking():
+    async def ws_notify_ranking(_: None = Depends(verify_internal_key)):
         """内部用: スクリプトからWebSocket ranking_updated を全クライアントにブロードキャスト。"""
         from app.core.ws_manager import ws_manager
         await ws_manager.broadcast("ranking_updated")

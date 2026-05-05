@@ -28,7 +28,7 @@ export default function PurchasesPage() {
       if (!user) {
         throw new Error('User not authenticated');
       }
-      return purchasesApi.listUserPurchases(user.id, {
+      return purchasesApi.listMyPurchases({
         cursor: cursor ?? undefined,
         limit: 20,
       });

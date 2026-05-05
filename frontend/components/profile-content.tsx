@@ -383,7 +383,7 @@ export function ProfileContent() {
           >
             <Heart className="h-4 w-4" /> <span>いいね</span>
           </TabsTrigger>
-          <TabsTrigger value="purchases" className="flex-1 gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary" onClick={async () => { if (purchases.length === 0 && user) { setLoadingPurchases(true); try { const response = await purchasesApi.listUserPurchases(user.id, { limit: 20 }); setPurchases(response.items); } catch (err) { console.error('Failed to load purchases', err); } finally { setLoadingPurchases(false); } } }}>
+          <TabsTrigger value="purchases" className="flex-1 gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary" onClick={async () => { if (purchases.length === 0 && user) { setLoadingPurchases(true); try { const response = await purchasesApi.listMyPurchases({ limit: 20 }); setPurchases(response.items); } catch (err) { console.error('Failed to load purchases', err); } finally { setLoadingPurchases(false); } } }}>
             <ShoppingBag className="h-4 w-4" /> <span>購入履歴</span>
           </TabsTrigger>
         </TabsList>

@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     API_DESCRIPTION: str = "Venduce backend API"
     ASSET_STORAGE_ROOT: str = "storage"
     ASSET_PUBLIC_BASE_URL: str = "/storage"
+    INTERNAL_API_KEY: str | None = None
 
     model_config = ConfigDict(env_prefix="")
 
