@@ -31,6 +31,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - backend_storage:/app/storage
     healthcheck:
       test: ['CMD-SHELL', 'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:8000/api/health'').read()"']
       interval: 15s
@@ -87,3 +88,4 @@ services:
 volumes:
   postgres_data:
   frontend_node_modules:
+  backend_storage:
