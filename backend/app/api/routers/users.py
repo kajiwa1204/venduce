@@ -47,7 +47,11 @@ def get_my_post_stats(
             func.count(Post.id),
             func.coalesce(func.sum(Post.like_count), 0),
             func.coalesce(func.sum(Post.purchase_count), 0),
-        ).where(Post.user_id == current_user.id, Post.status == PostStatus.PUBLIC)
+        ).where(
+            Post.user_id == current_user.id,
+            Post.status == PostStatus.PUBLIC,
+            Post.deleted_at.is_(None),
+        )
     ).one()
     return UserPostStats(post_count=row[0], total_likes=row[1], total_purchases=row[2])
 
@@ -223,7 +227,11 @@ def get_user_stats_by_username(
             func.count(Post.id),
             func.coalesce(func.sum(Post.like_count), 0),
             func.coalesce(func.sum(Post.purchase_count), 0),
-        ).where(Post.user_id == user.id, Post.status == PostStatus.PUBLIC)
+        ).where(
+            Post.user_id == user.id,
+            Post.status == PostStatus.PUBLIC,
+            Post.deleted_at.is_(None),
+        )
     ).one()
     return UserPostStats(post_count=row[0], total_likes=row[1], total_purchases=row[2])
 
