@@ -26,7 +26,7 @@ def test_admin_create_product_success(client, db_session):
         "currency": "JPY",
         "stock_quantity": 10,
     }
-    r = client.post('/admin/products/', json=payload, headers=headers)
+    r = client.post('/admin/products', json=payload, headers=headers)
     assert r.status_code == 201
     data = r.json()
     assert data['sku'] == 'SKU123'
@@ -48,7 +48,7 @@ def test_non_admin_cannot_create_product(client):
         "currency": "JPY",
         "stock_quantity": 1,
     }
-    r = client.post('/admin/products/', json=payload, headers=headers)
+    r = client.post('/admin/products', json=payload, headers=headers)
     assert r.status_code == 403
 
 
@@ -62,9 +62,9 @@ def test_duplicate_sku_conflict(client):
         "currency": "JPY",
         "stock_quantity": 5,
     }
-    r1 = client.post('/admin/products/', json=payload, headers=headers)
+    r1 = client.post('/admin/products', json=payload, headers=headers)
     assert r1.status_code == 201
-    r2 = client.post('/admin/products/', json=payload, headers=headers)
+    r2 = client.post('/admin/products', json=payload, headers=headers)
     assert r2.status_code == 409
 
 
@@ -79,7 +79,7 @@ def test_admin_create_ignores_client_created_at(client, db_session):
         "stock_quantity": 10,
         "created_at": "2000-01-01T00:00:00Z",
     }
-    r = client.post('/admin/products/', json=payload, headers=headers)
+    r = client.post('/admin/products', json=payload, headers=headers)
     assert r.status_code == 201
     data = r.json()
     assert data['sku'] == 'SKU9999'
@@ -105,7 +105,7 @@ def test_sku_normalization_conflict(client):
         "currency": "JPY",
         "stock_quantity": 5,
     }
-    r1 = client.post('/admin/products/', json=payload1, headers=headers)
+    r1 = client.post('/admin/products', json=payload1, headers=headers)
     assert r1.status_code == 201
-    r2 = client.post('/admin/products/', json=payload2, headers=headers)
+    r2 = client.post('/admin/products', json=payload2, headers=headers)
     assert r2.status_code == 409

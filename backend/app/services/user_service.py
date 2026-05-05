@@ -166,7 +166,7 @@ class UserService:
         db: Session, 
         refresh_token_str: str,
         create_new_refresh_token_fn,
-    ) -> str:
+    ) -> tuple[str, datetime]:
         """
         リフレッシュトークンをローテーションします（古いトークンを無効化し、新しいトークンを生成）。
         
