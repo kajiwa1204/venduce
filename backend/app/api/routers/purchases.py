@@ -1,5 +1,8 @@
+import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, status, Query, HTTPException
+
+logger = logging.getLogger(__name__)
 
 from app.db.database import get_db
 from app.models.user import User
@@ -44,7 +47,7 @@ def create_purchase(
     try:
         badge_service.ensure_default_badges()
     except Exception:
-        pass
+        logger.error("[purchase] ensure_default_badges 失敗 - purchase_id: %s", purchase.id, exc_info=True)
 
     # 投稿経由の購入の場合、投稿者に対してバッジ自動付与を判定
     if payload.referring_post_id and purchase.referring_post:
@@ -55,7 +58,7 @@ def create_purchase(
                 categories=[BadgeCategory.DRIVEN_PURCHASES],
             )
         except Exception:
-            pass
+            logger.error("[purchase] 投稿者バッジ付与失敗 - post_owner_id: %s", post_owner_id, exc_info=True)
 
     # 購入者自身の購入数バッジを判定
     try:
@@ -64,7 +67,7 @@ def create_purchase(
             categories=[BadgeCategory.PURCHASES_MADE],
         )
     except Exception:
-        pass
+        logger.error("[purchase] 購入者バッジ付与失敗 - buyer_id: %s", current_user.id, exc_info=True)
 
     # ランキングに影響するため全クライアントに通知
     fire_and_forget_broadcast("ranking_updated")

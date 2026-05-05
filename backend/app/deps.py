@@ -125,7 +125,7 @@ def get_current_user_optional(
     return user
 
 
-def verify_internal_key(x_internal_key: str = Header(...)) -> None:
+def verify_internal_key(x_internal_key: Optional[str] = Header(None)) -> None:
     if not settings.INTERNAL_API_KEY or x_internal_key != settings.INTERNAL_API_KEY:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid internal API key")
 
