@@ -40,18 +40,25 @@ def create_purchase(
     """
     purchase = service.create_purchase(db, payload=payload, buyer=current_user)
 
+    # バッジ評価の前に一度だけデフォルトバッジを確保
+    try:
+        badge_service.ensure_default_badges()
+    except Exception:
+        pass
+
     # 投稿経由の購入の場合、投稿者に対してバッジ自動付与を判定
     if payload.referring_post_id and purchase.referring_post:
         post_owner_id = purchase.referring_post.user_id
-        badge_service.ensure_default_badges()
-        badge_service.evaluate_and_award(
-            post_owner_id,
-            categories=[BadgeCategory.DRIVEN_PURCHASES],
-        )
+        try:
+            badge_service.evaluate_and_award(
+                post_owner_id,
+                categories=[BadgeCategory.DRIVEN_PURCHASES],
+            )
+        except Exception:
+            pass
 
     # 購入者自身の購入数バッジを判定
     try:
-        badge_service.ensure_default_badges()
         badge_service.evaluate_and_award(
             current_user.id,
             categories=[BadgeCategory.PURCHASES_MADE],
@@ -80,22 +87,15 @@ def create_purchase(
     return purchase
 
 
-@router.get("/{user_id}", response_model=PaginatedResponse[PurchaseRead])
-def list_user_purchases(
-    user_id: str,
+@router.get("/me", response_model=PaginatedResponse[PurchaseRead])
+def list_my_purchases(
     cursor: Optional[str] = Query(default=None, description="Cursor for pagination"),
     limit: int = Query(default=20, ge=1, le=100, description="Number of items to return"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     service: PurchaseService = Depends(get_purchase_service),
 ):
-    """ユーザーの購入履歴を cursor ベースのページネーションで取得します。
-    
-    ユーザーは自分の購入履歴のみ閲覧可能です。
-    """
-    if user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
-
+    """自分の購入履歴を cursor ベースのページネーションで取得します。"""
     purchases, next_cursor, has_more = service.list_user_purchases(
         db, user=current_user, cursor=cursor, limit=limit
     )

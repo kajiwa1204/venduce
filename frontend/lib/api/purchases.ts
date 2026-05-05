@@ -17,19 +17,16 @@ export const purchasesApi = {
     });
   },
 
-  listUserPurchases: async (
-    userId: string,
-    options?: {
-      cursor?: string | null;
-      limit?: number;
-    }
-  ): Promise<PaginatedResponseCursor<Purchase>> => {
+  listMyPurchases: async (options?: {
+    cursor?: string | null;
+    limit?: number;
+  }): Promise<PaginatedResponseCursor<Purchase>> => {
     const params = new URLSearchParams();
     if (options?.cursor) params.set('cursor', options.cursor);
     if (options?.limit) params.set('limit', String(options.limit));
 
     const queryString = params.toString();
-    const endpoint = queryString ? `/api/purchases/${userId}?${queryString}` : `/api/purchases/${userId}`;
+    const endpoint = queryString ? `/api/purchases/me?${queryString}` : `/api/purchases/me`;
 
     return client.get<PaginatedResponseCursor<Purchase>>(endpoint);
   },

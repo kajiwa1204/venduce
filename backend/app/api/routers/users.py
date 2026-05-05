@@ -39,15 +39,17 @@ def read_user_me(
 @router.get("/me/stats", response_model=UserPostStats)
 def get_my_post_stats(
     current_user: User = Depends(get_current_user),
-    post_service: PostService = Depends(get_post_service),
+    db: Session = Depends(get_db),
 ) -> UserPostStats:
     """現在のユーザーの投稿集計（累計いいね・購入数・投稿数）を返します。"""
-    posts = post_service.get_posts_by_user(user_id=current_user.id)
-    return UserPostStats(
-        post_count=len(posts),
-        total_likes=sum(p.like_count for p in posts),
-        total_purchases=sum(p.purchase_count for p in posts),
-    )
+    row = db.execute(
+        select(
+            func.count(Post.id),
+            func.coalesce(func.sum(Post.like_count), 0),
+            func.coalesce(func.sum(Post.purchase_count), 0),
+        ).where(Post.user_id == current_user.id, Post.status == PostStatus.PUBLIC)
+    ).one()
+    return UserPostStats(post_count=row[0], total_likes=row[1], total_purchases=row[2])
 
 
 @router.get("/search", response_model=List[PublicUserRead])
@@ -211,18 +213,19 @@ def get_user_by_username(
 def get_user_stats_by_username(
     username: str,
     db: Session = Depends(get_db),
-    post_service: PostService = Depends(get_post_service),
 ) -> UserPostStats:
     """ユーザー名で指定されたユーザーの投稿集計を返します（認証不要）。"""
     user = db.query(User).filter(User.username == username, User.is_active.is_(True)).first()
     if not user:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりません")
-    posts = post_service.get_posts_by_user(user_id=user.id)
-    return UserPostStats(
-        post_count=len(posts),
-        total_likes=sum(p.like_count for p in posts),
-        total_purchases=sum(p.purchase_count for p in posts),
-    )
+    row = db.execute(
+        select(
+            func.count(Post.id),
+            func.coalesce(func.sum(Post.like_count), 0),
+            func.coalesce(func.sum(Post.purchase_count), 0),
+        ).where(Post.user_id == user.id, Post.status == PostStatus.PUBLIC)
+    ).one()
+    return UserPostStats(post_count=row[0], total_likes=row[1], total_purchases=row[2])
 
 
 @router.get("/{username}/posts", response_model=PaginatedResponse[PostRead])
