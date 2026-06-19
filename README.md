@@ -37,9 +37,15 @@ Venduceは、SNSの「シェア・つながる」体験とECの「購入」を�
 |------|------|
 | Docker Compose | コンテナオーケストレーション |
 | Nginx | リバースプロキシ |
+| Cloudflare Tunnel | ポート開放なしで自宅サーバを外部公開 |
+| Cloudflare DNS | ドメイン管理 |
 | JWT (RS256 / HS256) | 認証 |
 | ULID | ID生成 |
 | SQLAdmin | 管理画面 |
+
+### 一言説明用
+
+FastAPI・Next.js・PostgreSQL を Docker Compose で構成し、nginx をリバースプロキシとして使用。友人所有の自宅サーバにオンプレミスで構築し、Cloudflare Tunnel で外部公開、DNS 管理も Cloudflare で行っている。
 
 ---
 
